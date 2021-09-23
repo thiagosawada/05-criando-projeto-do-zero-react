@@ -4,10 +4,9 @@ import Head from 'next/head';
 
 import Prismic from '@prismicio/client';
 
-import { format } from 'date-fns';
-import ptBR from 'date-fns/locale/pt-BR';
-
+import { useState } from 'react';
 import { getPrismicClient } from '../services/prismic';
+import { formatDate } from '../utils/formatDate';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
@@ -32,21 +31,59 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
+  const { next_page, results } = postsPagination;
+
+  const [posts, setPosts] = useState<Post[]>(results);
+  const [nextPageUrl, setNextPageUrl] = useState(next_page);
+
+  async function handleLoadPosts(): Promise<void> {
+    const response = await fetch(nextPageUrl);
+    const data = await response.json();
+
+    setNextPageUrl(data.next_page);
+
+    const newPosts = data.results.map(post => {
+      return {
+        uid: post.uid,
+        first_publication_date: post.first_publication_date,
+        data: {
+          title: post.data.title,
+          subtitle: post.data.subtitle,
+          author: post.data.author,
+        },
+      };
+    });
+
+    setPosts([...posts, ...newPosts]);
+  }
+
   return (
     <>
       <Head>
         <title>Página Inicial | spacetravelling</title>
       </Head>
       <main>
-        <section>
-          <div>
-            <h2>Título do post</h2>
-            <h3>Conteúdo do post</h3>
-            <div>
-              <time>Data</time>
-              <span>Autor</span>
+        <section className={commonStyles.container}>
+          {posts.map(post => (
+            <div key={post.uid}>
+              <h2>{post.data.title}</h2>
+              <p>{post.data.subtitle}</p>
+              <div>
+                <time>{formatDate(post.first_publication_date)}</time>
+                <span>{post.data.author}</span>
+              </div>
             </div>
-          </div>
+          ))}
+
+          {nextPageUrl && (
+            <button
+              type="button"
+              className={styles.loadPosts}
+              onClick={handleLoadPosts}
+            >
+              Carregar mais posts
+            </button>
+          )}
         </section>
       </main>
     </>
@@ -66,17 +103,9 @@ export const getStaticProps: GetStaticProps = async () => {
   const { next_page } = postsResponse;
 
   const results = postsResponse.results.map(post => {
-    const first_publication_date = format(
-      new Date(post.first_publication_date),
-      'dd MMM y',
-      {
-        locale: ptBR,
-      }
-    );
-
     return {
       uid: post.uid,
-      first_publication_date,
+      first_publication_date: post.first_publication_date,
       data: {
         title: post.data.title,
         subtitle: post.data.subtitle,
@@ -92,5 +121,6 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return {
     props: { postsPagination },
+    revalidate: 60 * 60 * 24,
   };
 };
