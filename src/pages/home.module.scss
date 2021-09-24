@@ -1,1 +1,32 @@
-// TODO
+.title {
+  font-size: 1.75rem;
+  line-height: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--white-heading);
+  text-align: justify;
+}
+
+.subtitle {
+  margin-bottom: 0.75rem;
+  text-align: justify;
+}
+
+.info {
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+
+  svg {
+    margin-right: 0.5rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  time, span {
+    margin-right: 1rem;
+    line-height: 1rem;
+    font-size: 0.9rem;
+    color: var(--gray-300-info);
+  }
+}
