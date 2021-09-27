@@ -1,32 +1,55 @@
-.title {
-  font-size: 1.75rem;
-  line-height: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: var(--white-heading);
-  text-align: justify;
-}
+.card {
 
-.subtitle {
-  margin-bottom: 0.75rem;
-  text-align: justify;
-}
-
-.info {
-  height: 1.5rem;
-  display: flex;
-  align-items: center;
-
-  svg {
-    margin-right: 0.5rem;
-    width: 1.25rem;
-    height: 1.25rem;
+  & + .card {
+    margin-top: 2rem;
   }
 
-  time, span {
-    margin-right: 1rem;
-    line-height: 1rem;
-    font-size: 0.9rem;
-    color: var(--gray-300-info);
+  .title {
+    font-size: 1.75rem;
+    line-height: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--white-heading);
+    text-align: justify;
+  }
+
+  .subtitle {
+    margin-bottom: 0.75rem;
+    text-align: justify;
+  }
+
+  .info {
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+
+    svg {
+      margin-right: 0.5rem;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    time, span {
+      margin-right: 1rem;
+      line-height: 1rem;
+      font-size: 0.9rem;
+      color: var(--gray-300-info);
+    }
+  }
+}
+
+.loadPosts {
+  margin-top: 2rem;
+  border: none;
+  background: transparent;
+  color: var(--pink-highlight);
+  line-height: 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+
+  transition: filter 0.2s;
+
+  &:hover {
+    filter: brightness(0.8);
   }
 }
