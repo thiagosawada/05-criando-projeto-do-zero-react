@@ -1,4 +1,5 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
+import { useRouter } from 'next/router';
 
 import { RichText } from 'prismic-dom';
 import Prismic from '@prismicio/client';
@@ -30,7 +31,19 @@ interface PostProps {
 }
 
 export default function Post({ post }: PostProps): JSX.Element {
-  return <h1>Hello world!</h1>;
+  const router = useRouter();
+
+  if (router.isFallback) {
+    return <div className={commonStyles.container}>Carregando...</div>;
+  }
+
+  return (
+    <>
+      <div className={commonStyles.container}>
+        <h1>Hello world!</h1>
+      </div>
+    </>
+  );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
