@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { RichText } from 'prismic-dom';
 import Prismic from '@prismicio/client';
 
+import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 import { getPrismicClient } from '../../services/prismic';
 
 import commonStyles from '../../styles/common.module.scss';
@@ -61,14 +62,18 @@ export default function Post({ post }: PostProps): JSX.Element {
         style={{ backgroundImage: `url(${post.data.banner.url})` }}
       />
       <div className={commonStyles.container}>
-        <h1>{post.data.title}</h1>
-        <div>
+        <h1 className={styles.title}>{post.data.title}</h1>
+        <div className={commonStyles.info}>
+          <FiCalendar />
           <time>{formatDate(post.first_publication_date)}</time>
+          <FiUser />
           <span>{post.data.author}</span>
+          <FiClock />
           <span>{readingTime()} min</span>
         </div>
+
         {post.data.content.map((ct, index) => (
-          <div key={`ct-${index + 1}`}>
+          <div key={`ct-${index + 1}`} className={styles.content}>
             <h2>{ct.heading}</h2>
             <div
               dangerouslySetInnerHTML={{ __html: RichText.asHtml(ct.body) }}
