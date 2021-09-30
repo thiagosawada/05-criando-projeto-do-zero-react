@@ -44,7 +44,7 @@ export default function Post({ post }: PostProps): JSX.Element {
     return <div className={commonStyles.container}>Carregando...</div>;
   }
 
-  function readingTime(): number {
+  function readingTime(): string {
     const totalWords = post.data.content.reduce((acc, ct) => {
       let counter = acc;
       counter += countWords(ct.heading);
@@ -52,7 +52,7 @@ export default function Post({ post }: PostProps): JSX.Element {
       return counter;
     }, 0);
 
-    return Math.ceil(totalWords / 200);
+    return `${Math.ceil(totalWords / 200)} min`;
   }
 
   return (
@@ -69,7 +69,7 @@ export default function Post({ post }: PostProps): JSX.Element {
           <FiUser />
           <span>{post.data.author}</span>
           <FiClock />
-          <span>{readingTime()} min</span>
+          <span>{readingTime()}</span>
         </div>
 
         {post.data.content.map((ct, index) => (
