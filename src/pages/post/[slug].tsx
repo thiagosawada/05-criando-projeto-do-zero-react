@@ -8,6 +8,7 @@ import { getPrismicClient } from '../../services/prismic';
 
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
+import { formatDate } from '../../utils/formatDate';
 
 interface Post {
   first_publication_date: string | null;
@@ -31,6 +32,10 @@ interface PostProps {
   post: Post;
 }
 
+function countWords(text: string): number {
+  return text.split(/\s+/g).length;
+}
+
 export default function Post({ post }: PostProps): JSX.Element {
   const router = useRouter();
 
@@ -38,10 +43,38 @@ export default function Post({ post }: PostProps): JSX.Element {
     return <div className={commonStyles.container}>Carregando...</div>;
   }
 
+  function readingTime(): number {
+    const totalWords = post.data.content.reduce((acc, ct) => {
+      let counter = acc;
+      counter += countWords(ct.heading);
+      counter += countWords(RichText.asText(ct.body));
+      return counter;
+    }, 0);
+
+    return Math.ceil(totalWords / 200);
+  }
+
   return (
     <>
+      <div
+        className={styles.banner}
+        style={{ backgroundImage: `url(${post.data.banner.url})` }}
+      />
       <div className={commonStyles.container}>
-        <h1>Hello world!</h1>
+        <h1>{post.data.title}</h1>
+        <div>
+          <time>{formatDate(post.first_publication_date)}</time>
+          <span>{post.data.author}</span>
+          <span>{readingTime()} min</span>
+        </div>
+        {post.data.content.map((ct, index) => (
+          <div key={`ct-${index + 1}`}>
+            <h2>{ct.heading}</h2>
+            <div
+              dangerouslySetInnerHTML={{ __html: RichText.asHtml(ct.body) }}
+            />
+          </div>
+        ))}
       </div>
     </>
   );
