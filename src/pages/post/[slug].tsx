@@ -1,3 +1,5 @@
+import Head from 'next/head';
+
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 
@@ -58,6 +60,9 @@ export default function Post({ post }: PostProps): JSX.Element {
 
   return (
     <>
+      <Head>
+        <title>{post.data.title} | spacetravelling</title>
+      </Head>
       <div
         className={styles.banner}
         style={{ backgroundImage: `url(${post.data.banner.url})` }}
