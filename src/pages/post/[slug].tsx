@@ -13,8 +13,10 @@ import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
 import { formatDate } from '../../utils/formatDate';
 import { Comments } from '../../components/Comments';
+import useUpdatePreview from '../../hooks/useUpdatePreviewRef';
 
 interface Post {
+  uid?: string;
   first_publication_date: string | null;
   data: {
     title: string;
@@ -34,14 +36,16 @@ interface Post {
 
 interface PostProps {
   post: Post;
+  previewRef: string;
 }
 
 function countWords(text: string): number {
   return text.split(/\s+/g).length;
 }
 
-export default function Post({ post }: PostProps): JSX.Element {
+export default function Post({ post, previewRef }: PostProps): JSX.Element {
   const router = useRouter();
+  useUpdatePreview(previewRef, post.uid);
 
   if (router.isFallback) {
     return <div className={commonStyles.container}>Carregando...</div>;
@@ -110,11 +114,18 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps = async ({ params }) => {
+export const getStaticProps: GetStaticProps = async ({
+  params,
+  previewData,
+}) => {
+  const previewRef = previewData ? previewData.ref : null;
+  const refOption = previewRef ? { ref: previewRef } : null;
+
   const { slug } = params;
 
   const prismic = getPrismicClient();
-  const response = await prismic.getByUID('posts', String(slug), {});
+  const response =
+    (await prismic.getByUID('posts', String(slug), refOption)) || ({} as Post);
 
   const post = {
     uid: response.uid,
@@ -123,12 +134,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       title: response.data.title,
       subtitle: response.data.subtitle,
       banner: {
-        url: response.data.banner.url,
+        url: response.data.banner?.url,
       },
       author: response.data.author,
       content: response.data.content,
     },
   };
 
-  return { props: { post } };
+  return { props: { post, previewRef } };
 };
