@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import Link from 'next/link';
 
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
@@ -16,6 +17,7 @@ import { Comments } from '../../components/Comments';
 import useUpdatePreview from '../../hooks/useUpdatePreviewRef';
 
 interface Post {
+  id?: string;
   uid?: string;
   first_publication_date: string | null;
   data: {
@@ -37,13 +39,20 @@ interface Post {
 interface PostProps {
   post: Post;
   previewRef: string;
+  prevPost: Post;
+  nextPost: Post;
 }
 
 function countWords(text: string): number {
   return text.split(/\s+/g).length;
 }
 
-export default function Post({ post, previewRef }: PostProps): JSX.Element {
+export default function Post({
+  post,
+  previewRef,
+  prevPost,
+  nextPost,
+}: PostProps): JSX.Element {
   const router = useRouter();
   useUpdatePreview(previewRef, post.uid);
 
@@ -90,6 +99,29 @@ export default function Post({ post, previewRef }: PostProps): JSX.Element {
             />
           </div>
         ))}
+
+        <div className={styles.postsNav}>
+          <div className={styles.prevPost}>
+            {prevPost && (
+              <Link href={`/post/${prevPost.uid}`}>
+                <a>
+                  <h3>{prevPost.data.title}</h3>
+                  <p>Post anterior</p>
+                </a>
+              </Link>
+            )}
+          </div>
+          <div className={styles.nextPost}>
+            {nextPost && (
+              <Link href={`/post/${nextPost.uid}`}>
+                <a>
+                  <h3>{nextPost.data.title}</h3>
+                  <p>Próximo post</p>
+                </a>
+              </Link>
+            )}
+          </div>
+        </div>
         <Comments />
       </div>
     </>
@@ -101,7 +133,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const { results } = await prismic.query(
     [Prismic.Predicates.at('document.type', 'posts')],
     {
-      orderings: '[posts.last_publication_date]',
+      orderings: '[document.last_publication_date]',
       pageSize: 1,
     }
   );
@@ -141,5 +173,22 @@ export const getStaticProps: GetStaticProps = async ({
     },
   };
 
-  return { props: { post, previewRef } };
+  async function getOtherPosts(order = ''): Promise<Post> {
+    const data = await prismic.query(
+      [Prismic.Predicates.at('document.type', 'posts')],
+      {
+        pageSize: 1,
+        after: `${response.id}`,
+        fetch: ['posts.title'],
+        orderings: `[document.last_publication_date ${order}]`,
+      }
+    );
+
+    return data.results[0] || null;
+  }
+
+  const prevPost = await getOtherPosts('desc');
+  const nextPost = await getOtherPosts();
+
+  return { props: { post, previewRef, prevPost, nextPost } };
 };
