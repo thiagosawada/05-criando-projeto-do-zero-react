@@ -97,14 +97,15 @@ export default function Home({
               Carregar mais posts
             </button>
           )}
+
+          {preview && (
+            <aside>
+              <Link href="/api/exit-preview">
+                <a>Sair do modo Preview</a>
+              </Link>
+            </aside>
+          )}
         </section>
-        {preview && (
-          <aside>
-            <Link href="/api/exit-preview">
-              <a>Sair do modo Preview</a>
-            </Link>
-          </aside>
-        )}
       </main>
     </>
   );

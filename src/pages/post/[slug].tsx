@@ -12,7 +12,7 @@ import { getPrismicClient } from '../../services/prismic';
 
 import commonStyles from '../../styles/common.module.scss';
 import styles from './post.module.scss';
-import { formatDate } from '../../utils/formatDate';
+import { formatDate, formatDateHours } from '../../utils/formatDate';
 import { Comments } from '../../components/Comments';
 import useUpdatePreview from '../../hooks/useUpdatePreviewRef';
 
@@ -20,6 +20,7 @@ interface Post {
   id?: string;
   uid?: string;
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     subtitle: string;
@@ -91,6 +92,12 @@ export default function Post({
           <span>{readingTime()}</span>
         </div>
 
+        {post.last_publication_date &&
+          post.first_publication_date !== post.last_publication_date && (
+            <span className={styles.edition}>{`* editado em ${formatDateHours(
+              post.last_publication_date
+            )}`}</span>
+          )}
         {post.data.content.map((ct, index) => (
           <div key={`ct-${index + 1}`} className={styles.content}>
             <h2>{ct.heading}</h2>
@@ -162,6 +169,7 @@ export const getStaticProps: GetStaticProps = async ({
   const post = {
     uid: response.uid,
     first_publication_date: response.first_publication_date,
+    last_publication_date: response.last_publication_date,
     data: {
       title: response.data.title,
       subtitle: response.data.subtitle,
